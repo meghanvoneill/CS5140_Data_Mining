@@ -31,6 +31,11 @@ def main():
     timing_in_ms = int(round(time.time() * 1000)) - start_time
     print("timing: " + str(timing_in_ms) + " ms")
 
+    plt.plot(experiment_results)
+    plt.title('m = 300')
+    plt.ylabel('random trials')
+    plt.xlabel('k')
+    plt.show()
 
     ##############################################################################
     # Empirically estimate the expected number of k random trials in order to have
@@ -51,51 +56,88 @@ def main():
     # as a function of n.) You should be able to reach values of n = 1,000,000 and
     # m = 10,000.
 
-    # m = 300
-    experiment_results_m300 = []
-    experiment_timing_m300 = []
-    generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m300, 1000000,
-                                                    experiment_timing_m300)
+    # # m = 300
+    # experiment_results_m300 = []
+    # experiment_n_m300 = []
+    # experiment_timing_m300 = []
+    # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m300, 1000000,
+    #                                                 experiment_n_m300, experiment_timing_m300)
 
-    # m = 600
+    #m = 600
     # m_times = 600
     # experiment_results_m600 = []
+    # experiment_n_m600 = []
     # experiment_timing_m600 = []
     # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m600, 1000000,
-    #                                                 experiment_timing_m600)
+    #                                                 experiment_n_m600, experiment_timing_m600)
 
-    # m = 1,200
+    # # m = 1,200
     # m_times = 1200
     # experiment_results_m1200 = []
+    # experiment_n_m1200 = []
     # experiment_timing_m1200 = []
     # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m1200, 1000000,
-    #                                                 experiment_timing_m1200)
-
-    # m = 2,500
+    #                                                 experiment_n_m1200, experiment_timing_m1200)
+    #
+    # # m = 2,500
     # m_times = 2500
     # experiment_results_m2500 = []
+    # experiment_n_m2500 = []
     # experiment_timing_m2500 = []
     # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m2500, 1000000,
-    #                                                 experiment_timing_m2500)
+    #                                                 experiment_n_m2500, experiment_timing_m2500)
 
     # m = 5,000
     # m_times = 5000
     # experiment_results_m5000 = []
+    # experiment_n_m5000 = []
     # experiment_timing_m5000 = []
     # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m5000, 1000000,
-    #                                                 experiment_timing_m5000)
+    #                                                 experiment_n_m5000, experiment_timing_m5000)
 
     # m = 10,000
     # m_times = 10000
     # experiment_results_m10000 = []
+    # experiment_n_m10000 = []
     # experiment_timing_m10000 = []
     # generate_match_in_domain_mtimes_increasing_to_q(m_times, domain_size_n, experiment_results_m10000, 1000000,
-    #                                                 experiment_timing_m10000)
+    #                                                 experiment_n_m10000, experiment_timing_m10000)
 
-    plt.plot(experiment_timing_m300)
-    plt.ylabel('time')
-    plt.xlabel('n')
-    plt.show()
+    # plt.plot(experiment_n_m300, experiment_timing_m300)
+    # plt.title('m = 300')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
+
+    # plt.plot(experiment_n_m600, experiment_timing_m600)
+    # plt.title('m = 600')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
+
+    # plt.plot(experiment_n_m1200, experiment_timing_m1200)
+    # plt.title('m = 1200')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
+    #
+    # plt.plot(experiment_n_m2500, experiment_timing_m2500)
+    # plt.title('m = 2500')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
+
+    # plt.plot(experiment_n_m5000, experiment_timing_m5000)
+    # plt.title('m = 5000')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
+
+    # plt.plot(experiment_n_m10000, experiment_timing_m10000)
+    # plt.title('m = 10000')
+    # plt.ylabel('time in ms')
+    # plt.xlabel('n')
+    # plt.show()
 
     return
 
@@ -138,9 +180,9 @@ def generate_match_in_domain_mtimes(m, n, experiment_results_trials):
 
 
 def generate_match_in_domain_mtimes_increasing_to_q(m, n, experiment_results_trials_increasing, q,
-                                                    experiment_results_time):
+                                                    experiment_results_n, experiment_results_time):
 
-    for new_n in range(n, q, 1000):
+    for new_n in range(n, q, 10000):
         start_time = int(round(time.time() * 1000))
 
         for experiment in range(0, m):
@@ -149,7 +191,11 @@ def generate_match_in_domain_mtimes_increasing_to_q(m, n, experiment_results_tri
 
         timing_in_ms = int(round(time.time() * 1000)) - start_time
 
+        experiment_results_n.append(new_n)
         experiment_results_time.append(timing_in_ms)
+
+        if (new_n % 25000) == 0:
+            print("update: " + str(timing_in_ms))
 
     return
 
