@@ -143,9 +143,7 @@ def main():
     # Use t hash functions to form the family of hash functions.
     t = 600
     D1_grams_list = list(G2_k_grams_D1)
-
     D2_grams_list = list(G2_k_grams_D2)
-
     min_vector = []
 
     # Loop through hash functions.
@@ -153,7 +151,6 @@ def main():
         D1_vector = []
         D2_vector = []
 
-        print("h = " + str(h))
         # Find all the hashed values for D1's k-grams.
         for a in D1_grams_list:
             new_val = hash_function(a, h)
@@ -161,6 +158,7 @@ def main():
 
         # Find all the hashed values for D2's k-grams.
         for b in D2_grams_list:
+            #print("b: " + b)
             new_val = hash_function(b, h)
             D2_vector.append(new_val)
 
@@ -168,14 +166,17 @@ def main():
         min_a = min(D1_vector)
         min_b = min(D2_vector)
 
+        print(jaccard_similarity(set(D1_vector), set(D2_vector)))
+
         # Store a 1 if a = b, and a 0 otherwise.
         print(min_a)
         print(min_b)
         if min_a == min_b:
-            print("match here")
             min_vector.append(1)
         else:
             min_vector.append(0)
+
+    print("min_vector: " + str(min_vector))
 
     partial_sum = 0
     for val in min_vector:
@@ -220,13 +221,14 @@ def main():
     # print(D1_vector)
     # print(D2_vector)
     #
-    # js = cummulative_jaccard_similarity(D1_vector, D2_vector, t)
+    # js = cumulative_jaccard_similarity(D1_vector, D2_vector, t)
     # print("JS: " + str(js))
 
     return
 
 
 def k_gram_chars(file_name, k):
+    
     k_grams = []
     f = open(file_name, "r")
 
@@ -243,6 +245,7 @@ def k_gram_chars(file_name, k):
 
 
 def k_gram_strings(file_name, k):
+
     k_grams = []
     f = open(file_name, "r")
 
@@ -264,6 +267,7 @@ def k_gram_strings(file_name, k):
 # The Jaccard similarity between A and B is:
 #   |(A n B)| / |(A u B)|
 def jaccard_similarity(set_A, set_B):
+
     AnB = set_A.intersection(set_B)
     AuB = set_A.union(set_B)
 
@@ -272,7 +276,7 @@ def jaccard_similarity(set_A, set_B):
     return j_similarity
 
 
-def cummulative_jaccard_similarity(setA, setB, t):
+def cumulative_jaccard_similarity(setA, setB, t):
 
     summation = 0
 
@@ -282,14 +286,13 @@ def cummulative_jaccard_similarity(setA, setB, t):
             print("a: " + str(setA[i]) + " b: " + str(setB[i]))
             if setA[i] == setB[i]:
                 summation += 1
-        # If a exists and b does not exist, report that they do not have the same value.
-        # If b exists and a does not exist, report that they do not have the same value.
 
     j_similarity = float(float(1 / t) * float(summation))
     return j_similarity
 
 
 def min_hash(vectors, t):
+
     min_vectors = []
 
     # 3. Repeat steps 1 & 2, t times.
@@ -322,15 +325,15 @@ def min_hash(vectors, t):
 #   https://stackoverflow.com/questions/2255604/hash-functions-family-generator-in-python
 # Credit to Alex Martelli.
 def hash_function(x, n):
-    #print("x: " + str(x) + " n: " + str(n))
+
     mask = _memomask.get(n)
 
     if mask is None:
         random.seed(n)
         mask = _memomask[n] = random.getrandbits(32)
 
-    val = hash(x) ^ mask
-    #print(val)
+    m = 100000
+    val = (hash(x) ^ mask) % m
     return val
 
 
