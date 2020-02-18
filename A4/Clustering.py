@@ -142,53 +142,52 @@ def main():
     #                 print("result: " + str(S_i))
     #
     # print('Found ' + str(k) + ' clusters!')
-
-    #print_Q1_data(clusters_Q1B, 'C1 - Complete-Link Distance')
+    #
+    # print_Q1_data(clusters_Q1B, 'C1 - Complete-Link Distance')
 
     ##########################################################################################################
     #### Mean-Link Distance ####
     ##########################################################################################################
-    k = 4
-    threshold = 5.5
-    clusters_Q1C = {}
-    next_ID = 0
+    # k = 4
+    # threshold = 5.5
+    # clusters_Q1C = {}
+    # next_ID = 0
+    #
+    # # Add all points as their own clusters to the clusters dictionary.
+    # for i in range(len(C1_xlist)):
+    #     point = {'x': C1_xlist[i], 'y': C1_ylist[i]}
+    #     points = {'0': point}
+    #     cluster = {'points': points, 'mean': point}
+    #     clusters_Q1C[next_ID] = cluster
+    #     next_ID += 1
+    #
+    # # While we don't have k clusters
+    # while len(clusters_Q1C.keys()) > k:
+    #
+    #     # Randomly choose starting cluster
+    #     S_i_key = random.choice(list(clusters_Q1C))
+    #     S_i = clusters_Q1C[S_i_key]
+    #
+    #     # For every other cluster
+    #     for S_j_key in clusters_Q1C.keys():
+    #         # If S_i != S_j
+    #         if S_i_key != S_j_key:
+    #             # Find the closest pair
+    #             distance = abs(mean_link_distance(S_i, clusters_Q1C[S_j_key]))
+    #             # If two given clusters, S_i and S_j, are close enough (threshold)
+    #             if distance <= threshold:
+    #                 # Merge S_i and S_j into a single cluster
+    #                 next_ID = len(S_i['points'].keys())
+    #                 print("merging " + str(S_i) + " and " + str(clusters_Q1C[S_j_key]['points']))
+    #                 for s_j in clusters_Q1C[S_j_key]['points']:
+    #                     S_i['points'][next_ID] = clusters_Q1C[S_j_key]['points'][s_j]
+    #                     next_ID += 1
+    #                 cluster_mean(S_i)
+    #                 del clusters_Q1C[S_j_key]
+    #
+    # print('Found ' + str(k) + ' clusters!')
 
-    # Add all points as their own clusters to the clusters dictionary.
-    for i in range(len(C1_xlist)):
-        point = {'x': C1_xlist[i], 'y': C1_ylist[i]}
-        points = {'0': point}
-        cluster = {'points': points, 'mean': point}
-        clusters_Q1C[next_ID] = cluster
-        next_ID += 1
-
-    # While we don't have k clusters
-    while len(clusters_Q1C.keys()) > k:
-
-        # Randomly choose starting cluster
-        S_i_key = random.choice(list(clusters_Q1C))
-        S_i = clusters_Q1C[S_i_key]
-
-        # For every other cluster
-        for S_j_key in clusters_Q1C.keys():
-            # If S_i != S_j
-            if S_i_key != S_j_key:
-                # Find the closest pair
-                distance = abs(mean_link_distance(S_i, clusters_Q1C[S_j_key]))
-                # If two given clusters, S_i and S_j, are close enough (threshold)
-                if distance <= threshold:
-                    # Merge S_i and S_j into a single cluster
-                    next_ID = len(S_i['points'].keys())
-                    print("merging " + str(S_i) + " and " + str(clusters_Q1C[S_j_key]['points']))
-                    for s_j in clusters_Q1C[S_j_key]['points']:
-                        S_i['points'][next_ID] = clusters_Q1C[S_j_key]['points'][s_j]
-                        next_ID += 1
-                    cluster_mean(S_i)
-                    del clusters_Q1C[S_j_key]
-
-    print('Found ' + str(k) + ' clusters!')
-
-    print_Q1_data(clusters_Q1C, 'C1 - Mean-Link Distance')
-
+    #print_Q1_data(clusters_Q1C, 'C1 - Mean-Link Distance')
 
     # 1.B: Which variant did the best job, and which was the easiest to compute (think if the data was
     #      much larger)? Explain your answers.
@@ -204,6 +203,46 @@ def main():
     #           • the 3-center cost maxx∈X d(x, φC (x)) and
     #           • the 3-means cost 􏰁 1 􏰀 (d(x, φC (x)))2 |X| x∈X
     #      (Note this has been normalized so easy to compare to 3-center cost)
+
+    C2_data = {}
+    C2_file = 'C2.txt'
+    C2_xlist = []
+    C2_ylist = []
+
+    with open(C2_file, 'r') as f:
+        line = f.readline()
+        while line:
+            words_in_line = line.split()
+            x = float(words_in_line[1])
+            y = float(words_in_line[2])
+            C2_data[int(words_in_line[0])] = (x, y)
+            C2_xlist.append(x)
+            C2_ylist.append(y)
+
+            line = f.readline()
+
+    # Plot data without alteration.
+    plt.scatter(C2_xlist, C2_ylist, marker='o')
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.title('C2')
+    plt.show()
+
+    ##########################################################################################################
+    #### Gonzalez Algorithm ####
+    ##########################################################################################################
+
+    k = 3
+    x_array = []
+    y_array = []
+    points = {'x': x_array, 'y': y_array}
+    data_Q2_G = {'points': points}
+
+    # Add all points to the data dictionary.
+    for i in range(len(C2_xlist)):
+        data_Q2_G['points']['x'].append(C2_xlist[i])
+        data_Q2_G['points']['y'].append(C2_ylist[i])
+
 
     # 2.B: For k-Means++, the algorithm is randomized, so you will need to report the variation in this algorithm.
     #      Run it several trials (at least 20) and plot the cumulative density function of the 3-means cost. Also
@@ -318,16 +357,56 @@ def mean_link_distance(S1, S2):
     return distance
 
 
-def gonzalez_alg(data, k):
+# For value k (number of clusters) and a set (data), it finds a set of k sites, and returns the set of k sites
+# with optimal cost.
+# "Be greedy, and avoid your neighbors!"
+def gonzalez_clustering(data, k, n):
+
+    phi_x_mapping = [1] * n
+    phi_y_mapping = [1] * n
+    set_of_cluster_centers = {}
+    number_of_cluster_centers = 0
+
     # Choose c_1 as the point with index 1.
+    c_1 = data['x'][1]
+
+    for i in range(2, k):
+        M = 0
+        #set_of_cluster_centers[i] = c_1
+
+        for j in range(1, n):
+            x_j_x = data['x'][j]
+            x_j_y = data['y'][j]
+            s_phi_j_x = phi_x_mapping[j]
+            s_phi_j_y = phi_y_mapping[j]
+            distance = euclidean_dist(x_j_x, x_j_y, s_phi_j_x, s_phi_j_y)
+
+            if distance > M:
+                M = distance
+                set_of_cluster_centers['x'][j] = x_j_x
+                set_of_cluster_centers['y'][j] = x_j_y
+
+        for j in range(1, n):
+            x_j_x = data['x'][j]
+            x_j_y = data['y'][j]
+            s_phi_j_x = phi_x_mapping[j]
+            s_phi_j_y = phi_y_mapping[j]
+            distance_to_phi_center = euclidean_dist(x_j_x, x_j_y, s_phi_j_x, s_phi_j_y)
+            distance_to_center = euclidean_dist(x_j_x, x_j_y,
+                                                set_of_cluster_centers['x'][j], set_of_cluster_centers['x'][j])
+
+            if distance_to_phi_center > distance_to_center:
+                phi_x_mapping[j] = i
+                phi_y_mapping[j] = i
+
     return
 
 
-def k_means_plusplus(data, k):
+def k_means_plusplus_clustering(data, k):
     return
 
 
-def lloyds_alg(data, k, C):
+def lloyds_clustering(data, k, C):
     return
 
 
@@ -369,6 +448,45 @@ def print_Q1_data(clusters, title):
     plt.scatter(cluster_2_x, cluster_2_y, color=colors[1], marker='o')
     plt.scatter(cluster_3_x, cluster_3_y, color=colors[2], marker='o')
     plt.scatter(cluster_4_x, cluster_4_y, color=colors[0], marker='o')
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.title(title)
+    plt.show()
+
+    return
+
+
+def print_Q2_data(clusters, title):
+
+    cluster_1_x = []
+    cluster_2_x = []
+    cluster_3_x = []
+    cluster_1_y = []
+    cluster_2_y = []
+    cluster_3_y = []
+    count = 0
+    colors = ['#39A2AE', '#CC0000', '#BADA55', '#F1C300', '#4E004F', '#3B0056']
+
+    for cluster in clusters:
+        if count == 0:
+            for point in clusters[cluster]['points']:
+                cluster_1_x.append(clusters[cluster]['points'][point]['x'])
+                cluster_1_y.append(clusters[cluster]['points'][point]['y'])
+            count += 1
+        elif count == 1:
+            for point in clusters[cluster]['points']:
+                cluster_2_x.append(clusters[cluster]['points'][point]['x'])
+                cluster_2_y.append(clusters[cluster]['points'][point]['y'])
+            count += 1
+        elif count == 2:
+            for point in clusters[cluster]['points']:
+                cluster_3_x.append(clusters[cluster]['points'][point]['x'])
+                cluster_3_y.append(clusters[cluster]['points'][point]['y'])
+            count += 1
+
+    plt.scatter(cluster_1_x, cluster_1_y, color=colors[3], marker='o')
+    plt.scatter(cluster_2_x, cluster_2_y, color=colors[1], marker='o')
+    plt.scatter(cluster_3_x, cluster_3_y, color=colors[2], marker='o')
     plt.ylabel('y')
     plt.xlabel('x')
     plt.title(title)
