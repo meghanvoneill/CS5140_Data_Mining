@@ -235,14 +235,25 @@ def main():
     k = 3
     x_array = []
     y_array = []
-    points = {'x': x_array, 'y': y_array}
-    data_Q2_G = {'points': points}
+    data_Q2_G = {'x': x_array, 'y': y_array}
 
     # Add all points to the data dictionary.
     for i in range(len(C2_xlist)):
-        data_Q2_G['points']['x'].append(C2_xlist[i])
-        data_Q2_G['points']['y'].append(C2_ylist[i])
+        data_Q2_G['x'].append(C2_xlist[i])
+        data_Q2_G['y'].append(C2_ylist[i])
 
+    clusters, phi = gonzalez_clustering(data_Q2_G, k, len(data_Q2_G['x']))
+
+    clusters_to_print = {}
+
+    for i in range(1, k + 1):
+        clusters_to_print[i] = {'x': [], 'y': []}
+
+    for i in range(len(phi)):
+        clusters_to_print[phi[i]]['x'].append(data_Q2_G['x'][i])
+        clusters_to_print[phi[i]]['y'].append(data_Q2_G['y'][i])
+
+    print_Q2_data(clusters_to_print, 'C2 - Gonzalez Algorithm')
 
     # 2.B: For k-Means++, the algorithm is randomized, so you will need to report the variation in this algorithm.
     #      Run it several trials (at least 20) and plot the cumulative density function of the 3-means cost. Also
@@ -326,16 +337,12 @@ def cluster_mean(cluster):
         summation_x += cluster['points'][p]['x']
         summation_y += cluster['points'][p]['y']
 
-    print('len: ' + str(len(cluster['points'].keys())))
-
     mean_x = (1 / float(len(cluster['points'].keys()))) * summation_x
     mean_y = (1 / float(len(cluster['points'].keys()))) * summation_y
 
     mean = {'x': mean_x, 'y': mean_y}
     cluster['mean'] = mean
 
-    print('cluster: ' + str(cluster))
-    print('mean: ' + str(mean))
     return
 
 
@@ -346,13 +353,7 @@ def cluster_mean(cluster):
 def mean_link_distance(S1, S2):
 
     distance = euclidean_dist(S1['mean']['x'], S1['mean']['y'],
-                         S2['mean']['x'], S2['mean']['y'])
-
-    print('S1: ' + str(S1))
-    print('S1 mean: ' + str(S1['mean']['x']) + ' ' + str(S1['mean']['y']))
-    print('S2: ' + str(S2))
-    print('S2 mean: ' + str(S2['mean']['x']) + ' ' + str(S2['mean']['y']))
-    print('distance: ' + str(distance))
+                              S2['mean']['x'], S2['mean']['y'])
 
     return distance
 
@@ -362,44 +363,58 @@ def mean_link_distance(S1, S2):
 # "Be greedy, and avoid your neighbors!"
 def gonzalez_clustering(data, k, n):
 
-    phi_x_mapping = [1] * n
-    phi_y_mapping = [1] * n
+    phi_mapping = [1] * n
     set_of_cluster_centers = {}
-    number_of_cluster_centers = 0
+    center_indices = set()
 
     # Choose c_1 as the point with index 1.
-    c_1 = data['x'][1]
+    c_1 = {'x': data['x'][1], 'y': data['y'][1]}
+    center_indices.add(1)
 
-    for i in range(2, k):
-        M = 0
-        #set_of_cluster_centers[i] = c_1
+    set_of_cluster_centers[1] = c_1
 
-        for j in range(1, n):
-            x_j_x = data['x'][j]
-            x_j_y = data['y'][j]
-            s_phi_j_x = phi_x_mapping[j]
-            s_phi_j_y = phi_y_mapping[j]
+    for i in range(2, k + 1):
+        max_val = 0
+        new_center_index = 1
+
+        for j in range(n):
+            if j in center_indices:
+                continue
+            x_j_x, x_j_y = data['x'][j], data['y'][j]
+            s_phi_j_x = set_of_cluster_centers[phi_mapping[j]]['x']
+            s_phi_j_y = set_of_cluster_centers[phi_mapping[j]]['y']
             distance = euclidean_dist(x_j_x, x_j_y, s_phi_j_x, s_phi_j_y)
 
-            if distance > M:
-                M = distance
-                set_of_cluster_centers['x'][j] = x_j_x
-                set_of_cluster_centers['y'][j] = x_j_y
+            if distance > max_val:
+                max_val = distance
+                new_center_index = j
 
-        for j in range(1, n):
+        center_indices.add(new_center_index)
+        set_of_cluster_centers[i] = {'x': data['x'][new_center_index], 'y': data['y'][new_center_index]}
+
+        for j in range(n):
+            if j in center_indices:
+                continue
             x_j_x = data['x'][j]
             x_j_y = data['y'][j]
-            s_phi_j_x = phi_x_mapping[j]
-            s_phi_j_y = phi_y_mapping[j]
-            distance_to_phi_center = euclidean_dist(x_j_x, x_j_y, s_phi_j_x, s_phi_j_y)
-            distance_to_center = euclidean_dist(x_j_x, x_j_y,
-                                                set_of_cluster_centers['x'][j], set_of_cluster_centers['x'][j])
+            s_phi_j_x = set_of_cluster_centers[phi_mapping[j]]['x']
+            s_phi_j_y = set_of_cluster_centers[phi_mapping[j]]['y']
+            distance_to_phi_center = euclidean_dist(x_j_x,
+                                                    x_j_y,
+                                                    s_phi_j_x,
+                                                    s_phi_j_y
+                                                    )
+
+            distance_to_center = euclidean_dist(x_j_x,
+                                                x_j_y,
+                                                set_of_cluster_centers[i]['x'],
+                                                set_of_cluster_centers[i]['y']
+                                                )
 
             if distance_to_phi_center > distance_to_center:
-                phi_x_mapping[j] = i
-                phi_y_mapping[j] = i
+                phi_mapping[j] = i
 
-    return
+    return set_of_cluster_centers, phi_mapping
 
 
 def k_means_plusplus_clustering(data, k):
@@ -464,28 +479,32 @@ def print_Q2_data(clusters, title):
     cluster_1_y = []
     cluster_2_y = []
     cluster_3_y = []
-    count = 0
     colors = ['#39A2AE', '#CC0000', '#BADA55', '#F1C300', '#4E004F', '#3B0056']
 
-    for cluster in clusters:
-        if count == 0:
-            for point in clusters[cluster]['points']:
-                cluster_1_x.append(clusters[cluster]['points'][point]['x'])
-                cluster_1_y.append(clusters[cluster]['points'][point]['y'])
-            count += 1
-        elif count == 1:
-            for point in clusters[cluster]['points']:
-                cluster_2_x.append(clusters[cluster]['points'][point]['x'])
-                cluster_2_y.append(clusters[cluster]['points'][point]['y'])
-            count += 1
-        elif count == 2:
-            for point in clusters[cluster]['points']:
-                cluster_3_x.append(clusters[cluster]['points'][point]['x'])
-                cluster_3_y.append(clusters[cluster]['points'][point]['y'])
-            count += 1
+    for i in range(1, len(clusters) + 1):
 
-    plt.scatter(cluster_1_x, cluster_1_y, color=colors[3], marker='o')
-    plt.scatter(cluster_2_x, cluster_2_y, color=colors[1], marker='o')
+        if i == 1:
+            for j in range(len(clusters[i]['x'])):
+                cluster_1_x.append(clusters[i]['x'][j])
+                cluster_1_y.append(clusters[i]['y'][j])
+
+        if i == 2:
+            for j in range(len(clusters[i]['x'])):
+                cluster_2_x.append(clusters[i]['x'][j])
+                cluster_2_y.append(clusters[i]['y'][j])
+
+        if i == 3:
+            for j in range(len(clusters[i]['x'])):
+                cluster_3_x.append(clusters[i]['x'][j])
+                cluster_3_y.append(clusters[i]['y'][j])
+
+    print('cluster 2: ')
+    print(cluster_2_x)
+    print(cluster_2_y)
+
+    s = 20
+    plt.scatter(cluster_1_x, cluster_1_y, color=colors[3], marker='o', s=s)
+    plt.scatter(cluster_2_x, cluster_2_y, color=colors[4], marker='o')
     plt.scatter(cluster_3_x, cluster_3_y, color=colors[2], marker='o')
     plt.ylabel('y')
     plt.xlabel('x')
