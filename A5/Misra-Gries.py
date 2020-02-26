@@ -5,7 +5,7 @@ def main():
     file_name_1 = 'S1.txt'
     file_name_2 = 'S2.txt'
 
-    output = misra_gries_algorithm(file_name_2, 9)
+    output = misra_gries_algorithm(file_name_1, 10)
     print('output: ' + str(output))
 
     return
@@ -14,6 +14,7 @@ def main():
 def misra_gries_algorithm(file_name, k):
 
     count_array = {}
+    count = 0
 
     # While s has data
     with open(file_name, 'r') as s:
@@ -21,6 +22,10 @@ def misra_gries_algorithm(file_name, k):
         for line in iter(s.readline, ''):
 
             for i in line:
+
+                if count == 1000:
+                    print('at 1000: ' + str(count_array))
+                count += 1
                 a_i = i
 
                 # If the value in the stream is already a label
@@ -36,22 +41,6 @@ def misra_gries_algorithm(file_name, k):
                         # If decrementing the label dropped the label's count to 0, delete the label
                         if count_array[label] == 0:
                             del count_array[label]
-
-    return count_array
-
-
-def count_min_sketch(file_name, k):
-
-    count_array = {}
-
-    # While s has data
-    with open(file_name, 'r') as s:
-
-        for line in iter(s.readline, ''):
-
-            for i in line:
-
-                count_array[i] = 0
 
     return count_array
 
