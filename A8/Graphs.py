@@ -31,8 +31,12 @@ def main():
     #    For what value of t is required to get as close to the true answer as the older initial state?
     q_0 = np.full((1, M.shape[1]), 0.1)
 
-    matrix_power_qstar(M, q_0)
-    state_propagation_qstar(M, q_0, t)
+    q_star_5 = matrix_power_qstar(M, q_0)
+    print('matrix_power_qstar: ')
+    print(q_star_5)
+    q_star_6 = state_propagation_qstar(M, q_0, t)
+    print('state_propogation_qstar: ')
+    print(q_star_6)
 
     # C) Explain at least one Pro and one Con of each approach. The Pro should explain a situation when
     #    it is the best option to use. The Con should explain why another approach may be better for
