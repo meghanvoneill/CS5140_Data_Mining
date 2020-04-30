@@ -2,7 +2,7 @@ import numpy as np
 from sklearn import preprocessing
 from scipy import linalg as LA
 import random
-
+import time
 
 def main():
 
@@ -14,29 +14,29 @@ def main():
     q_0[0][0] = 1
     t_0 = 100
 
-    q_star_1 = matrix_power_qstar(M, q_0)
-    print('matrix_power_qstar: ')
-    print(q_star_1)
+    q_star_1 = matrix_power_qstar(M, q_0, t)
+    # print('matrix_power_qstar: ')
+    # print(q_star_1)
     q_star_2 = state_propagation_qstar(M, q_0, t)
-    print('state_propogation_qstar: ')
-    print(q_star_2)
+    # print('state_propogation_qstar: ')
+    # print(q_star_2)
     q_star_3 = random_walk_qstar(M, t)
-    print('random_walk_qstar: ')
-    print(q_star_3)
+    # print('random_walk_qstar: ')
+    # print(q_star_3)
     q_star_4 = eigen_analysis_qstar(M)
-    print('eigen_analysis_qstar: ')
-    print(q_star_4)
+    # print('eigen_analysis_qstar: ')
+    # print(q_star_4)
 
     # B) Rerun the Matrix Power and State Propagation techniques with q_0 = [0.1, 0.1, . . . , 0.1]^T.
     #    For what value of t is required to get as close to the true answer as the older initial state?
     q_0 = np.full((1, M.shape[1]), 0.1)
 
-    q_star_5 = matrix_power_qstar(M, q_0)
-    print('matrix_power_qstar: ')
-    print(q_star_5)
+    q_star_5 = matrix_power_qstar(M, q_0, t)
+    # print('matrix_power_qstar: ')
+    # print(q_star_5)
     q_star_6 = state_propagation_qstar(M, q_0, t)
-    print('state_propogation_qstar: ')
-    print(q_star_6)
+    # print('state_propogation_qstar: ')
+    # print(q_star_6)
 
     # C) Explain at least one Pro and one Con of each approach. The Pro should explain a situation when
     #    it is the best option to use. The Con should explain why another approach may be better for
@@ -55,22 +55,26 @@ def main():
 #               two ways to create M^t, first we can just let M^i+1 = M^i ∗ M, repeating this process t − 1
 #               times. Alternatively, (for simplicity assume t is a power of 2), then in log_2(t) steps
 #               create M^2i = M^i ∗ M^i.
-def matrix_power_qstar(M, q_0):
+def matrix_power_qstar(M, q_0, t):
 
-    t = 100
+    start = time.time()
     M_t = np.linalg.matrix_power(M, t)
     q_0 = q_0.reshape(-1, 1)
     q_star = M_t.dot(q_0)
+    print('matrix_power: ' + str(time.time() - start))
 
     return q_star
 
 
 # State Propagation: Iterate q_(i+1) = M ∗ q_i for some large enough number t iterations.
 def state_propagation_qstar(M, q_0, t):
+    start = time.time()
     q_i = q_0.reshape(-1, 1)
 
     for i in range(t):
         q_i = M.dot(q_i)
+
+    print('state_propagation: ' + str(time.time() - start))
 
     return q_i
 
@@ -84,6 +88,8 @@ def state_propagation_qstar(M, q_0, t):
 #              how many times you have recorded each location and estimate q∗ as the normalized version
 #              (recall ||q∗||_1 = 1) of the vector of these counts.
 def random_walk_qstar(M, t, burn_in_size=5000):
+
+    start = time.time()
 
     q_star = np.zeros(M.shape[1])
     i = 1
@@ -118,15 +124,20 @@ def random_walk_qstar(M, t, burn_in_size=5000):
     q_star = q_star.reshape(1, -1)
     normalized_q_star = preprocessing.normalize(q_star, 'l1')
 
+    print('random_walk: ' + str(time.time() - start))
+
     return normalized_q_star
 
 
 # Eigen-Analysis: Compute LA.eig(M) and take the first eigenvector after it has been L1-normalized.
 def eigen_analysis_qstar(M):
 
+    start = time.time()
+
     eigenvalues, eigenvectors = LA.eig(M)
     normalized_eigenvectors = preprocessing.normalize(eigenvectors.real, 'l1')
     eigenvector_0 = normalized_eigenvectors[:, 0]
+    print('eigen_analysis: ' + str(time.time() - start))
 
     return eigenvector_0
 
